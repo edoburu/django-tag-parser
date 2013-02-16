@@ -15,14 +15,14 @@ Functions:
 
 Decorators:
 
-* ``tag_parser.template_tag``: register a class with ``parse()`` method as template tag.
+* ``tag_parser.template_tag``: register a class with ``parse(parser, token)`` method as template tag.
 
-Base classes:
+Base classes (``tag_parser.basetags``):
 
-* ``tag_parser.basetags.BaseNode``: A template ``Node`` object which features some basic parsing abilities.
+* ``BaseNode``: A template ``Node`` object which features some basic parsing abilities.
   It allows to implement "simple_tag"-like functionalities, while still leaving room to extend the parsing, rendering or syntax validation.
-* ``tag_parser.basetags.BaseInclusionNode``: a class that has ``@inclusion_tag`` like behaviour, but allows to override the ``template_name`` dynamically.
-* ``tag_parser.basetags.BaseAssignmentOrInclusionNode``: a class that allows a ``{% get_items template="..." %}`` and ``{% get_items as var %}`` syntax.
+* ``BaseInclusionNode``: a ``Node`` that has ``@inclusion_tag`` like behaviour, but allows to override the ``template_name`` dynamically.
+* ``BaseAssignmentOrInclusionNode``: a class that allows a ``{% get_items template="..." %}`` and ``{% get_items as var %}`` syntax.
 
 
 Installation
