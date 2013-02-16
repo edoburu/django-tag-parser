@@ -32,7 +32,7 @@ def parse_as_var(parser, token):
     return bits, as_var
 
 
-def parse_token_kwargs(parser, token, compile_args=False, compile_kwargs=False, allowed_kwargs=None):
+def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, compile_kwargs=True):
     """
     Allow the template tag arguments to be like a normal Python function, with *args and **kwargs.
 
@@ -42,7 +42,7 @@ def parse_token_kwargs(parser, token, compile_args=False, compile_kwargs=False, 
     :type token: :class:`~django.template.Token` or splitted bits
     :param compile_args: Whether the arguments should be compiled using :func:`parser.compile_filter <django.template.Parser.compile_filter>`.
     :param compile_kwargs: Whether the keyword arguments should be compiled using :func:`parser.compile_filter <django.template.Parser.compile_filter>`.
-    :param allowed_kwargs: A list of allowed keyword arguments.
+    :param allowed_kwargs: A list of allowed keyword arguments. A value of ``None`` disables the check.
     :type allowed_kwargs: tuple
     :return: The tag name, arguments and keyword arguments.
     :rtype: tuple(tag_name, args, kwargs)

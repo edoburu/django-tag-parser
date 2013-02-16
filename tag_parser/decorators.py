@@ -1,4 +1,6 @@
-from tag_parser.basetags import BaseNode
+"""
+Decorators to write template tags
+"""
 
 
 def template_tag(library, name):
@@ -19,7 +21,7 @@ def template_tag(library, name):
             pass
     """
     def _inner(cls):
-        if issubclass(cls, BaseNode):
+        if hasattr(cls, 'parse'):
             compile_function = cls.parse
         else:
             # Hope that it's either a function, or cls with __init__(self, parser, token) method.
