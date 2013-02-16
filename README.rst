@@ -10,19 +10,22 @@ Features:
 
 Functions:
 
-* ``tag_parser.parse_token_kwargs``: split a token into the tag name, args and kwargs.
-* ``tag_parser.parse_as_var``: extract the "as varname" from a token.
+* ``parse_token_kwargs``: split a token into the tag name, args and kwargs.
+* ``parse_as_var``: extract the "as varname" from a token.
 
 Decorators:
 
-* ``tag_parser.template_tag``: register a class with ``parse(parser, token)`` method as template tag.
+* ``@template_tag``: register a class with a ``parse(parser, token)`` method as template tag.
 
-Base classes (``tag_parser.basetags``):
+Base classes (in ``tag_parser.basetags``):
 
 * ``BaseNode``: A template ``Node`` object which features some basic parsing abilities.
-  It allows to implement "simple_tag"-like functionalities, while still leaving room to extend the parsing, rendering or syntax validation.
-* ``BaseInclusionNode``: a ``Node`` that has ``@inclusion_tag`` like behaviour, but allows to override the ``template_name`` dynamically.
+* ``BaseInclusionNode``: a ``Node`` that has ``inclusion_tag`` like behaviour, but allows to override the ``template_name`` dynamically.
 * ``BaseAssignmentOrInclusionNode``: a class that allows a ``{% get_items template="..." %}`` and ``{% get_items as var %}`` syntax.
+
+The base classes allows to implement ``@register.simple_tag``, ``@register.inclusion_tag`` and ``@register.assignment_tag`` like functionalities,
+while still leaving room to extend the parsing, rendering or syntax validation.
+For example, not all arguments need to be seen as template variables, filters or literal keywords.
 
 
 Installation
