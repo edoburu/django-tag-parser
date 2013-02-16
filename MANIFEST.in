@@ -1,5 +1,4 @@
 include AUTHORS
 include README.rst
 include LICENSE
-recursive-include tag_parser/locale *.po *.mo
 global-exclude .DS_Store

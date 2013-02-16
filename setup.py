@@ -3,16 +3,6 @@ from setuptools import setup, find_packages
 from os.path import dirname, join
 import sys, os
 
-# When creating the sdist, make sure the django.mo file also exists:
-if 'sdist' in sys.argv:
-    try:
-        os.chdir('tag_parser')
-        from django.core.management.commands.compilemessages import compile_messages
-        compile_messages(sys.stderr)
-    finally:
-        os.chdir('..')
-
-
 setup(
     name='django-tag-parser',
     version='1.0.0',
@@ -32,7 +22,7 @@ setup(
 
     zip_safe=False,
     classifiers=[
-        'Development Status :: 5 - Production',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
