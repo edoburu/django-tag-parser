@@ -229,7 +229,7 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode):
         Parse the "as var" syntax.
         """
         bits, as_var = parse_as_var(parser, token)
-        tag_name, args, kwargs = parse_token_kwargs(parser, bits, ('template',) + cls.allowed_kwargs)
+        tag_name, args, kwargs = parse_token_kwargs(parser, bits, ('template',) + cls.allowed_kwargs, compile_args=cls.compile_args, compile_kwargs=self.compile_kwargs)
 
         # Pass through standard chain
         cls.validate_args(tag_name, *args)

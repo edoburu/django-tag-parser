@@ -60,15 +60,17 @@ def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, co
     tag_name = bits[0]
 
     for bit in bits[1::]:
-        match = kwarg_re.match(bit)
-        if match:
+        kwarg_match = kwarg_re.match(bit)
+        if kwarg_match:
+            # Keyword argument
             expect_kwarg = True
             (name, expr) = bit.split('=', 2)
-            kwargs[name] = parser.compile_filter(expr) if compile_args else expr
+            kwargs[name] = parser.compile_filter(expr) if compile_kwargs else expr
         else:
+            # Still at positioned arguments.
             if expect_kwarg:
                 raise TemplateSyntaxError("{0} tag may not have a non-keyword argument ({1}) after a keyword argument ({2}).".format(bits[0], bit, prev_bit))
-            args.append(parser.compile_filter(bit) if compile_kwargs else bit)
+            args.append(parser.compile_filter(bit) if compile_args else bit)
 
         prev_bit = bit
 
