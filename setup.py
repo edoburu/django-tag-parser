@@ -5,7 +5,7 @@ import sys, os
 
 setup(
     name='django-tag-parser',
-    version='1.0.0',
+    version='1.0.1',
     license='Apache License, Version 2.0',
 
     description='Micro-library to easily write custom Django template tags',
