@@ -43,11 +43,11 @@ Or the current folder can be installed::
 Examples
 ========
 
-In your template tags library::
+At the top of your template tags library, always include the standard
+Django ``register`` variable and our ``template_tag`` decorator::
 
     from django.template import Library
     from tag_parser import template_tag
-    from tag_parser.basetags import BaseNode, BaseInclusionNode
 
     register = Library()
 
@@ -59,6 +59,13 @@ To parse a syntax like::
     {% my_tag "arg1" keyword1="bar" keyword2="foo" %}
 
 use::
+
+    from django.template import Library
+    from tag_parser import template_tag
+    from tag_parser.basetags import BaseNode
+
+    register = Library()
+
 
     @template_tag(register, 'my_tag')
     class MyTagNode(BaseNode):
@@ -77,6 +84,14 @@ To create an inclusion tag with overwritable template_name::
 
 use::
 
+
+    from django.template import Library
+    from tag_parser import template_tag
+    from tag_parser.basetags import BaseInclusionNode
+
+    register = Library()
+
+
     @template_tag(register, "my_include_tag")
     class MyIncludeTag(BaseInclusionNode):
         template_name = "mytags/default.html"
@@ -89,18 +104,55 @@ use::
             }
 
 The ``get_template_name()`` method can be overwritten too to support dynamic resolving of template names.
+By default it checks the ``template`` tag_kwarg, and ``template_name`` attribute.
 Note the template nodes are cached afterwards, it's not possible to return random templates at each call.
+
+
+Assignment tags
+---------------
+
+To create assignment tags that can either render itself, or return context data::
+
+    {% get_tags template="custom/example.html" %}
+    {% get_tags as popular_tags %}
+
+use::
+
+    from django.template import Library
+    from tag_parser import template_tag
+    from tag_parser.basetags import BaseAssignmentOrInclusionNode
+
+    register = Library()
+
+
+    @template_tag(register, 'get_tags')
+    class GetPopularTagsNode(BaseAssignmentOrInclusionNode):
+        template_name = "myblog/templatetags/popular_tags.html"
+        context_value_name = 'tags'
+        allowed_kwargs = (
+            'order', 'orderby', 'limit',
+        )
+
+        def get_value(self, *tag_args, **tag_kwargs):
+            return query_tags(**tag_kwargs)   # Something that reads the tags.
+
 
 
 Custom parsing
 --------------
 
-With a standard ``Node`` class, it's easier to implement custom syntax.
+With the standard ``Node`` class from Django, it's easier to implement custom syntax.
 For example, to parse::
 
     {% getfirstof val1 val2 as val3 %}
 
 use::
+
+    from django.template import Library, Node, TemplateSyntaxError
+    from tag_parser import template_tag, parse_token_kwargs, parse_as_var
+
+    register = Library()
+
 
     @template_tag(register, 'getfirstof')
     class GetFirstOfNode(Node):
