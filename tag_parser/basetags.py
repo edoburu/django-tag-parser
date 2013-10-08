@@ -233,7 +233,7 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode):
 
         # Pass through standard chain
         cls.validate_args(tag_name, *args)
-        return cls(tag_name, as_var=as_var, *args, **kwargs)
+        return cls(tag_name, as_var, *args, **kwargs)
 
 
     def render_tag(self, context, *tag_args, **tag_kwargs):
