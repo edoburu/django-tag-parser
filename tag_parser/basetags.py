@@ -215,7 +215,7 @@ class BaseAssignmentNode(BaseNode):
     Base assignment node for an ``as var`` syntax.
     """
     def __init__(self, tag_name, as_var, *args, **kwargs):
-        super(BaseAssignmentOrInclusionNode, self).__init__(tag_name, *args, **kwargs)
+        super(BaseAssignmentNode, self).__init__(tag_name, *args, **kwargs)
         self.as_var = as_var
 
 
@@ -238,12 +238,12 @@ class BaseAssignmentNode(BaseNode):
         """
         if self.as_var:
             # Assign the value in the parent context
-            context[self.as_var] = self.get_value(*tag_args, **tag_kwargs)
+            context[self.as_var] = self.get_value(context, *tag_args, **tag_kwargs)
 
         return u''
 
 
-    def get_value(self, *tag_args, **tag_kwargs):
+    def get_value(self, context, *tag_args, **tag_kwargs):
         """
         Return the value for the tag.
 
@@ -264,7 +264,7 @@ class BaseAssignmentOrOutputNode(BaseAssignmentNode):
         if self.as_var:
             return super(BaseAssignmentOrOutputNode, self).render_tag(context, *tag_args, **tag_kwargs)
         else:
-            return self.get_value(*tag_args, **tag_kwargs)
+            return self.get_value(context, *tag_args, **tag_kwargs)
 
 
 class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):

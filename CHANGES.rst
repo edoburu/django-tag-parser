@@ -1,3 +1,11 @@
+Version 1.1
+-----------
+
+* Add ``BaseAssignmentOrOutputNode`` to support tags similar to ``{% trans .. as .. %}`` and ``{% url .. as .. %}``.
+* **Backwards incompatible:**: The arguments of ``BaseAssignmentOrInclusionNode.get_value()`` also receive the ``context`` now.
+  So ``get_value(self, *tag_args, **tag_kwargs)`` becomes: ``get_value(self, context, *tag_args, **tag_kwargs)``.
+  If you use the positional arguments, update your method signature.
+
 Version 1.0.3
 -------------
 
