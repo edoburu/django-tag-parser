@@ -210,17 +210,68 @@ class BaseInclusionNode(BaseNode):
         return new_context
 
 
+class BaseAssignmentNode(BaseNode):
+    """
+    Base assignment node for an ``as var`` syntax.
+    """
+    def __init__(self, tag_name, as_var, *args, **kwargs):
+        super(BaseAssignmentOrInclusionNode, self).__init__(tag_name, *args, **kwargs)
+        self.as_var = as_var
 
-class BaseAssignmentOrInclusionNode(BaseInclusionNode):
+
+    @classmethod
+    def parse(cls, parser, token):
+        """
+        Parse the "as var" syntax.
+        """
+        bits, as_var = parse_as_var(parser, token)
+        tag_name, args, kwargs = parse_token_kwargs(parser, bits, cls.allowed_kwargs, compile_args=cls.compile_args, compile_kwargs=cls.compile_kwargs)
+
+        # Pass through standard chain
+        cls.validate_args(tag_name, *args)
+        return cls(tag_name, as_var, *args, **kwargs)
+
+
+    def render_tag(self, context, *tag_args, **tag_kwargs):
+        """
+        Rendering of the tag. It either assigns the value as variable, or renders it.
+        """
+        if self.as_var:
+            # Assign the value in the parent context
+            context[self.as_var] = self.get_value(*tag_args, **tag_kwargs)
+
+        return u''
+
+
+    def get_value(self, *tag_args, **tag_kwargs):
+        """
+        Return the value for the tag.
+
+        :param tag_args:
+        :param tag_kwargs:
+        """
+        raise NotImplementedError("{0}.get_value() is not implemented'.".format(self.__class__.__name__))
+
+
+class BaseAssignmentOrOutputNode(BaseAssignmentNode):
+    """
+    Base class to assign a value, or output it.
+    This works like ``{% trans .. %}`` and ``{% url .. %}`` which both optionally
+    have an ``as var`` syntax; ``{% trans .. as .. %}`` and ``{% url .. as .. %}``.
+    """
+
+    def render_tag(self, context, *tag_args, **tag_kwargs):
+        if self.as_var:
+            return super(BaseAssignmentOrOutputNode, self).render_tag(context, *tag_args, **tag_kwargs)
+        else:
+            return self.get_value(*tag_args, **tag_kwargs)
+
+
+class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
     """
     Base class to either assign a tag, or render it using a template.
     """
     context_value_name = 'value'
-
-
-    def __init__(self, tag_name, as_var, *args, **kwargs):
-        super(BaseAssignmentOrInclusionNode, self).__init__(tag_name, *args, **kwargs)
-        self.as_var = as_var
 
 
     @classmethod
@@ -240,13 +291,14 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode):
         """
         Rendering of the tag. It either assigns the value as variable, or renders it.
         """
+        # Be very explicit about which base functionality is used:
+        # Using super() for mixin support will not work nicely anyway here.
         if self.as_var:
             # Assign the value in the parent context
-            context[self.as_var] = self.get_value(*tag_args, **tag_kwargs)
-            return u''
+            return BaseAssignmentNode.render_tag(self, context, *tag_args, **tag_kwargs)
         else:
-            # Render the output using the base class features
-            return super(BaseAssignmentOrInclusionNode, self).render_tag(context, *tag_args, **tag_kwargs)
+            # Render the output using the BaseInclusionNode features
+            return BaseInclusionNode.render_tag(self, context, *tag_args, **tag_kwargs)
 
 
     def get_context_data(self, parent_context, *tag_args, **tag_kwargs):
@@ -258,13 +310,3 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode):
         return {
             self.context_value_name: self.get_value(*tag_args, **tag_kwargs)
         }
-
-
-    def get_value(self, *tag_args, **tag_kwargs):
-        """
-        Return the value for the tag.
-
-        :param tag_args:
-        :param tag_kwargs:
-        """
-        raise NotImplementedError("{0}.get_value() is not implemented'.".format(self.__class__.__name__))
