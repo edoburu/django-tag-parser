@@ -90,7 +90,7 @@ class BaseNode(Node):
         """
         # Resolve token kwargs
         tag_args = [expr.resolve(context) for expr in self.args] if self.compile_args else self.args
-        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in self.kwargs.iteritems()]) if self.compile_kwargs else self.kwargs
+        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in iter(self.kwargs.items())]) if self.compile_kwargs else self.kwargs
 
         return self.render_tag(context, *tag_args, **tag_kwargs)
 
@@ -134,7 +134,7 @@ class BaseNode(Node):
 
             render_to_response("page.html", context, context_instance=RequestContext(request))
         """
-        if not context.has_key('request'):
+        if 'request' not in context:
             # This error message is issued to help newcomers find solutions faster!
             raise ImproperlyConfigured(
                 "The '{0}' tag requires a 'request' variable in the template context.\n" \
