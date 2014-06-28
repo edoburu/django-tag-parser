@@ -1,3 +1,8 @@
+Version 2.0
+-----------
+
+* Added Python 3 support.
+
 Version 1.1
 -----------
 

@@ -6,4 +6,4 @@ __all__ = (
 )
 
 # following PEP 386
-__version__ = "1.1.0"
+__version__ = "2.0b1"
