@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Node, Context, TemplateSyntaxError
 from django.template.loader import get_template
+from django.utils.six import iteritems
 from tag_parser.parser import parse_token_kwargs, parse_as_var
 
 
@@ -90,7 +91,7 @@ class BaseNode(Node):
         """
         # Resolve token kwargs
         tag_args = [expr.resolve(context) for expr in self.args] if self.compile_args else self.args
-        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in iter(self.kwargs.items())]) if self.compile_kwargs else self.kwargs
+        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in iteritems(self.kwargs)]) if self.compile_kwargs else self.kwargs
 
         return self.render_tag(context, *tag_args, **tag_kwargs)
 
