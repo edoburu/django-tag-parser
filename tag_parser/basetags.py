@@ -9,6 +9,7 @@ __all__ = (
     'BaseNode', 'BaseInclusionNode'
 )
 
+
 class BaseNode(Node):
     """
     Base class for template tag nodes.
@@ -42,7 +43,8 @@ class BaseNode(Node):
     """
     #: The names of the allowed keyword arguments in the template tag.
     allowed_kwargs = ()
-
+    #: If you want that it this will also parse the text until endtag
+    endtagname = ""
     #: The minimum number of required positional arguments. Use ``None`` to disable the check.
     min_args = 0
 
@@ -80,6 +82,10 @@ class BaseNode(Node):
             compile_kwargs=cls.compile_kwargs
         )
         cls.validate_args(tag_name, *args, **kwargs)
+        if cls.endtagname:
+            cls.nodelist = parser.parse(('endupper',))
+            parser.delete_first_token()
+
         return cls(tag_name, *args, **kwargs)
 
 
@@ -143,6 +149,7 @@ class BaseNode(Node):
             )
 
         return context['request']
+
 
 
 class BaseInclusionNode(BaseNode):
