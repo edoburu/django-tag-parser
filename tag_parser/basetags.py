@@ -83,7 +83,7 @@ class BaseNode(Node):
         )
         cls.validate_args(tag_name, *args, **kwargs)
         if cls.endtagname:
-            cls.nodelist = parser.parse(('endupper',))
+            cls.nodelist = parser.parse((cls.endtagname,))
             parser.delete_first_token()
 
         return cls(tag_name, *args, **kwargs)
