@@ -65,13 +65,17 @@ use::
     from tag_parser.basetags import BaseNode
 
     register = Library()
+    
 
-
+        
     @template_tag(register, 'my_tag')
     class MyTagNode(BaseNode):
         max_args = 1
         allowed_kwargs = ('keyword1', 'keyword2',)
-
+        
+        # define also endtagname = "foo" to parse content until endtag
+        # then use cls.nodelist to get the nodelist
+        
         def render_tag(self, context, *tag_args, **tag_kwargs):
             return "Tag Output"
 
