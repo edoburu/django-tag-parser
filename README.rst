@@ -142,11 +142,24 @@ Block tags
 
 To have a "begin .. end" block, define ``end_tag_name`` in the class::
 
+    {% my_tag keyword1=foo %}
+        Tag contents, possibly other tags.
+    {% end_my_tag %}
+
+use::
+
+    from django.template import Library
+    from tag_parser import template_tag
+    from tag_parser.basetags import BaseAssignmentOrInclusionNode
+
+    register = Library()
+
+
     @template_tag(register, 'my_tag')
     class MyTagNode(BaseNode):
         max_args = 1
         allowed_kwargs = ('keyword1', 'keyword2',)
-        end_tag_nanme = 'end_my_tag'
+        end_tag_name = 'end_my_tag'
 
         def render_tag(self, context, *tag_args, **tag_kwargs):
             # Render contents inside
