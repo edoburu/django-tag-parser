@@ -43,8 +43,11 @@ class BaseNode(Node):
     """
     #: The names of the allowed keyword arguments in the template tag.
     allowed_kwargs = ()
-    #: If you want that it this will also parse the text until endtag
-    endtagname = ""
+
+    #: If you want that it this will also parse the text until the end tag,
+    #: and store that in ``self.nodelist``.
+    end_tag_name = None
+
     #: The minimum number of required positional arguments. Use ``None`` to disable the check.
     min_args = 0
 
@@ -63,6 +66,8 @@ class BaseNode(Node):
         The constructor receives the parsed arguments.
         The values are stored in :attr:`tagname`, :attr:`args`, :attr:`kwargs`.
         """
+        if self.end_tag_name and 'nodelist' in kwargs:
+            self.nodelist = kwargs.pop('nodelist')
         self.tag_name = tag_name  # May differ from cls.tag_name, and doesn't affect the 'cls' attribute at all.
         self.args = args
         self.kwargs = kwargs
@@ -82,8 +87,8 @@ class BaseNode(Node):
             compile_kwargs=cls.compile_kwargs
         )
         cls.validate_args(tag_name, *args, **kwargs)
-        if cls.endtagname:
-            cls.nodelist = parser.parse((cls.endtagname,))
+        if cls.end_tag_name:
+            kwargs['nodelist'] = parser.parse((cls.end_tag_name,))
             parser.delete_first_token()
 
         return cls(tag_name, *args, **kwargs)
