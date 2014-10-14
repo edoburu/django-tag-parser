@@ -23,7 +23,7 @@ def find_version(*parts):
 setup(
     name='django-tag-parser',
     version=find_version('tag_parser', '__init__.py'),
-    license='Apache License, Version 2.0',
+    license='Apache 2.0',
 
     description='Micro-library to easily write custom Django template tags',
     long_description=read('README.rst'),
@@ -39,7 +39,7 @@ setup(
 
     zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
