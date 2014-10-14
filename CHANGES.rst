@@ -2,6 +2,7 @@ Version 2.0
 -----------
 
 * Added Python 3 support.
+* Added ``end_tag_name`` support.
 
 Version 1.1
 -----------
