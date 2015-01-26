@@ -1,3 +1,9 @@
+Version 2.0.1
+-------------
+
+* Fix ``BaseAssignmentOrInclusionNode.get_context_data``.
+* Fix passing ``template`` to ``BaseAssignmentOrInclusionNode.get_value(.. **tag_kwargs)`` when it's not in ``allowed_kwargs``.
+
 Version 2.0
 -----------
 
