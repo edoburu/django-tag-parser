@@ -133,7 +133,7 @@ use::
             'order', 'orderby', 'limit',
         )
 
-        def get_value(self, *tag_args, **tag_kwargs):
+        def get_value(self, context, *tag_args, **tag_kwargs):
             return query_tags(**tag_kwargs)   # Something that reads the tags.
 
 

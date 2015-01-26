@@ -318,8 +318,8 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
         """
         Return the context data for the inclusion tag.
 
-        Returns ``{'value': self.get_value(*tag_args, **tag_kwargs)}`` by default.
+        Returns ``{'value': self.get_value(parent_context, *tag_args, **tag_kwargs)}`` by default.
         """
         return {
-            self.context_value_name: self.get_value(*tag_args, **tag_kwargs)
+            self.context_value_name: self.get_value(parent_context, *tag_args, **tag_kwargs)
         }
