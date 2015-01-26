@@ -320,6 +320,11 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
 
         Returns ``{'value': self.get_value(parent_context, *tag_args, **tag_kwargs)}`` by default.
         """
+        if 'template' not in self.allowed_kwargs:
+            # The overwritten get_value() doesn't have to take care of our customly inserted tag parameters,
+            # It can safely assume passing **tag_kwargs to another function.
+            tag_kwargs.pop('template', None)
+
         return {
             self.context_value_name: self.get_value(parent_context, *tag_args, **tag_kwargs)
         }
