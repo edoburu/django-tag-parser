@@ -1,7 +1,10 @@
+import django
 from django.core.exceptions import ImproperlyConfigured
+from django.template.base import Template
 from django.template import Node, Context, TemplateSyntaxError
 from django.template.loader import get_template
-from django.utils.six import iteritems
+from django.utils import six
+from django.utils.itercompat import is_iterable
 from tag_parser.parser import parse_token_kwargs, parse_as_var
 
 
@@ -102,7 +105,7 @@ class BaseNode(Node):
         """
         # Resolve token kwargs
         tag_args = [expr.resolve(context) for expr in self.args] if self.compile_args else self.args
-        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in iteritems(self.kwargs)]) if self.compile_kwargs else self.kwargs
+        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in six.iteritems(self.kwargs)]) if self.compile_kwargs else self.kwargs
 
         return self.render_tag(context, *tag_args, **tag_kwargs)
 
@@ -176,16 +179,35 @@ class BaseInclusionNode(BaseNode):
 
 
     def render_tag(self, context, *tag_args, **tag_kwargs):
-        # Get template nodes, and cache it.
-        # Note that self.nodelist has a special meaning in the Node base class.
-        if not getattr(self, 'nodelist', None):
-            tpl = get_template(self.get_template_name(*tag_args, **tag_kwargs))
-            self.nodelist = tpl.nodelist
-
-        # Render the node
         data = self.get_context_data(context, *tag_args, **tag_kwargs)
         new_context = self.get_context(context, data)
-        return self.nodelist.render(new_context)
+
+        if django.VERSION >= (1,8):
+            t = context.render_context.get(self)
+            if t is None:
+                file_name = self.get_template_name(*tag_args, **tag_kwargs)
+
+                if isinstance(file_name, Template):
+                    t = file_name
+                elif isinstance(getattr(file_name, 'template', None), Template):
+                    t = file_name.template
+                elif not isinstance(file_name, six.string_types) and is_iterable(file_name):
+                    t = context.template.engine.select_template(file_name)
+                else:
+                    t = context.template.engine.get_template(file_name)
+                context.render_context[self] = t
+
+            return t.render(new_context)
+        else:
+            # Get template nodes, and cache it.
+            # Note that self.nodelist has a special meaning in the Node base class.
+            if not getattr(self, 'nodelist', None):
+                file_name = self.get_template_name(*tag_args, **tag_kwargs)
+                tpl = get_template(file_name)
+                self.nodelist = tpl.nodelist
+
+            # Render the node
+            return self.nodelist.render(new_context)
 
 
     def get_template_name(self, *tag_args, **tag_kwargs):
@@ -213,7 +235,16 @@ class BaseInclusionNode(BaseNode):
         :return: Context data.
         :rtype: :class:`~django.template.Context`
         """
-        new_context = Context(data, autoescape=parent_context.autoescape)
+        if django.VERSION >= (1,8):
+            new_context = parent_context.new(data)
+        else:
+            settings = {
+                'autoescape': parent_context.autoescape,
+                'current_app': parent_context.current_app,
+                'use_l10n': parent_context.use_l10n,
+                'use_tz': parent_context.use_tz,
+            }
+            new_context = Context(data, **settings)
 
         # Pass CSRF token for same reasons as @register.inclusion_tag does.
         csrf_token = parent_context.get('csrf_token', None)

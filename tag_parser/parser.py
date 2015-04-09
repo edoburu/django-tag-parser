@@ -1,4 +1,5 @@
-from django.template import TemplateSyntaxError, Token
+from django.template import TemplateSyntaxError
+from django.template.base import Token
 import re
 
 __all__ = (
