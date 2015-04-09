@@ -1,3 +1,8 @@
+Version 2.1
+-----------
+
+* Added Django 1.8 support
+
 Version 2.0.1
 -------------
 
