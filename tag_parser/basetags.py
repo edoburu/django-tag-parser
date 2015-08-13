@@ -1,6 +1,6 @@
 import django
 from django.core.exceptions import ImproperlyConfigured
-from django.template.base import Template
+from django.template.base import Template, Parser
 from django.template import Node, Context, TemplateSyntaxError
 from django.template.loader import get_template
 from django.utils import six
@@ -69,6 +69,9 @@ class BaseNode(Node):
         The constructor receives the parsed arguments.
         The values are stored in :attr:`tagname`, :attr:`args`, :attr:`kwargs`.
         """
+        if isinstance(tag_name, Parser):
+            raise TypeError("Don't use @register.tag on {0}, use @template_tag(register, 'name') instead!".format(self.__class__.__name__))
+
         if self.end_tag_name and 'nodelist' in kwargs:
             self.nodelist = kwargs.pop('nodelist')
         self.tag_name = tag_name  # May differ from cls.tag_name, and doesn't affect the 'cls' attribute at all.
@@ -80,9 +83,10 @@ class BaseNode(Node):
     def parse(cls, parser, token):
         """
         Parse the tag, instantiate the class.
+
+        :type parser: django.template.base.Parser
+        :type token: django.template.base.Token
         """
-        # There is no __init__(self, parser, token) method in this class design
-        # to discourage the @register.tag decorator on the class because that prevents tag inheritance.
         tag_name, args, kwargs = parse_token_kwargs(
             parser, token,
             allowed_kwargs=cls.allowed_kwargs,
