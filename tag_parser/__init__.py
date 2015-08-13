@@ -5,5 +5,5 @@ __all__ = (
     'template_tag', 'parse_token_kwargs', 'parse_as_var',
 )
 
-# following PEP 386
+# following PEP 440
 __version__ = "2.1"
