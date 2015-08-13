@@ -79,6 +79,20 @@ class BaseNode(Node):
         self.kwargs = kwargs
 
 
+    def __repr__(self):
+        show_as_is = lambda text: text
+        show_as_token = lambda expr: expr.token
+        format_arg = show_as_token if self.compile_args else show_as_is
+        format_kwarg = show_as_token if self.compile_kwargs else show_as_is
+
+        return u'<{0}: {{% {1}{2}{3} %}}>'.format(
+            self.__class__.__name__,
+            self.tag_name,
+            u''.join(u" {0}".format(format_arg(a)) for a in self.args),
+            u''.join(u" {0}={1}".format(k, format_kwarg(v)) for k,v in six.iteritems(self.kwargs)),
+        )
+
+
     @classmethod
     def parse(cls, parser, token):
         """
