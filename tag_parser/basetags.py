@@ -12,6 +12,22 @@ __all__ = (
     'BaseNode', 'BaseInclusionNode'
 )
 
+class _CompileWrapper(object):
+    def __init__(self, real_class, parser, token):
+        self._real_class = real_class
+        self._node = self._real_class.parse(parser, token)
+
+    def render(self, context):
+        return self._node.render(context)
+
+    def __getattr__(self, item):
+        if item.startswith('_'):
+            raise AttributeError(item)
+        return getattr(self._node, item)
+
+    def __repr__(self):
+        return '<{0} {1}>'.format(self.__class__.__name__, repr(self._node))
+
 
 class BaseNode(Node):
     """
@@ -63,6 +79,38 @@ class BaseNode(Node):
     #: Whether the parser should treat the keyword arguments as filter expressions.
     compile_kwargs = True
 
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        if not kwargs and len(args) == 2 and isinstance(args[0], Parser):
+            # Reasons for this code:
+            # * When @register.tag() is used as class decorator,
+            #   this class itself is called as compile_function(parser, token).
+            # * By intercepting cls() calls, we can call parse() instead.
+            # * We want to keep __init__() clean for unit testing and inheritance reuse.
+            # * We must inherit from cls so template tag detection works as expected.
+            #
+            # Python note: When __new__ returns an instance of cls,
+            #              the __init__ method will be called on that object afterwards.
+            class CompileWrapper(cls):
+                __real_class = cls
+
+                def __init__(self, parser, token):
+                    self.__real_node = self.__real_class.parse(parser, token)
+
+                def __getattribute__(self, item):
+                    # Proxy all accessed attributes to the real object type.
+                    # Note this even intercepts __class__, etc.. type(self) gives the real type.
+                    if item.startswith('_CompileWrapper_'):
+                        return super(CompileWrapper, self).__getattribute__(item)
+
+                    return getattr(self.__real_node, item)
+
+            return object.__new__(CompileWrapper)
+            #return _CompileWrapper(cls, *args)
+        else:
+            # Standard object construction (typically done from parse())
+            # The created object instance will be receiving the __init__(*args, **kwargs) call on return.
+            return object.__new__(cls)
 
     def __init__(self, tag_name, *args, **kwargs):
         """
@@ -70,7 +118,7 @@ class BaseNode(Node):
         The values are stored in :attr:`tagname`, :attr:`args`, :attr:`kwargs`.
         """
         if isinstance(tag_name, Parser):
-            raise TypeError("Don't use @register.tag on {0}, use @template_tag(register, 'name') instead!".format(self.__class__.__name__))
+            raise TypeError("Unexpected call of {0}.__init__(parser, token)!".format(self.__class__.__name__))
 
         if self.end_tag_name and 'nodelist' in kwargs:
             self.nodelist = kwargs.pop('nodelist')

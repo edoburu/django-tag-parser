@@ -1,3 +1,9 @@
+
+Version 2.2 (git)
+-----------------
+
+* Support ``@register.tag`` directly on the class
+
 Version 2.1
 -----------
 
