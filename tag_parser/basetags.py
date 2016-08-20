@@ -61,6 +61,7 @@ class BaseNode(Node):
                 return "Tag output"
     """
     #: The names of the allowed keyword arguments in the template tag.
+    #: Using ``None`` to disable this check, thus allowing all keyword arguments.
     allowed_kwargs = ()
 
     #: If you want that it this will also parse the text until the end tag,

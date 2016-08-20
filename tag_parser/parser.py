@@ -76,9 +76,12 @@ def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, co
         prev_bit = bit
 
     # Validate the allowed arguments, to make things easier for template developers
-    if allowed_kwargs is not None:
+    if allowed_kwargs is not None and kwargs:
+        if not allowed_kwargs:
+            raise TemplateSyntaxError("The option %s=... cannot be used in '%s'.\nNo keyword arguments are allowed.")
+
         for name in kwargs:
             if name not in allowed_kwargs:
-                raise AttributeError("The option %s=... cannot be used in '%s'.\nPossible options are: %s." % (name, bits[0], ", ".join(allowed_kwargs)))
+                raise TemplateSyntaxError("The option %s=... cannot be used in '%s'.\nPossible options are: %s." % (name, bits[0], ", ".join(allowed_kwargs)))
 
     return tag_name, args, kwargs
