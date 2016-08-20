@@ -1,15 +1,24 @@
 from django.template import Context, TemplateSyntaxError
-from django.template.base import add_to_builtins, Template, Token, TOKEN_TEXT, Parser, FilterExpression
+from django.template.base import Template, Token, TOKEN_TEXT, Parser, FilterExpression
 from django.test import SimpleTestCase
 from tag_parser.basetags import BaseNode
 from tag_parser.tests.templatetags import tag_parser_test_tags as test_tags
 
 
+try:
+    from django.template.base import add_to_builtins # Django 1.8-
+except ImportError:
+    add_to_builtins = None
+
+
 class TagParserTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
-        # Make it easier to run tests without needing to change INSTALLED_APPS
-        add_to_builtins("tag_parser.tests.templatetags.tag_parser_test_tags")
+        super(TagParserTests, cls).setUpClass()
+        if add_to_builtins is not None:
+            # Django 1.8 and below.
+            # Make it easier to run tests without needing to change INSTALLED_APPS
+            add_to_builtins("tag_parser.tests.templatetags.tag_parser_test_tags")
 
     def test_base_no_args(self):
         """
@@ -67,8 +76,17 @@ class TagParserTests(SimpleTestCase):
             allowed_kwargs = ('kw',)
             compile_kwargs = False
 
-        node = ArgsTest1.parse(parser=Parser([]), token=Token(TOKEN_TEXT, 'ArgsTest  1  2  kw=foo|default:"1" '))
+        node = ArgsTest1.parse(parser=_get_parser(), token=Token(TOKEN_TEXT, 'ArgsTest  1  2  kw=foo|default:"1" '))
         self.assertEqual(repr(node), '<ArgsTest1: {% ArgsTest 1 2 kw=foo|default:"1" %}>')
 
-        node = ArgsTest2.parse(parser=Parser([]), token=Token(TOKEN_TEXT, 'ArgsTest  1  2  kw=foo|default:"1" '))
+        node = ArgsTest2.parse(parser=_get_parser(), token=Token(TOKEN_TEXT, 'ArgsTest  1  2  kw=foo|default:"1" '))
         self.assertEqual(repr(node), '<ArgsTest2: {% ArgsTest 1 2 kw=foo|default:"1" %}>')
+
+
+def _get_parser():
+    import django
+    parser = Parser([])
+    if django.VERSION >= (1, 9):
+        import django.template.defaultfilters
+        parser.add_library(django.template.defaultfilters.register)
+    return parser

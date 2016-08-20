@@ -39,6 +39,13 @@ if not settings.configured:
                 },
             ]
         )
+
+        if django.VERSION >= (1, 9):
+            template_settings['TEMPLATES'][0]['OPTIONS'].update({
+                'builtins': [
+                    'tag_parser.tests.templatetags.tag_parser_test_tags',
+                ],
+            })
     else:
         template_settings = dict(
             TEMPLATE_LOADERS = (
