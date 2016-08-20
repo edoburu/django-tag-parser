@@ -1,4 +1,4 @@
-from django.template import Context
+from django.template import Context, TemplateSyntaxError
 from django.template.base import add_to_builtins, Template, Token, TOKEN_TEXT, Parser, FilterExpression
 from django.test import SimpleTestCase
 from tag_parser.basetags import BaseNode
@@ -19,6 +19,17 @@ class TagParserTests(SimpleTestCase):
         tag = Template('{% BaseNoArgsTag %}').nodelist[0]
         self.assertIsInstance(tag, test_tags.BaseNoArgsTag)
 
+    def test_base_any_args(self):
+        """
+        Detect when ``@register.tag`` was used directly on the class.
+        It should fail, and tell developers how to handle tags.
+        """
+        t = Template('{% BaseAnyArgsTag foo=1 bar=1 %}')
+        tag = t.nodelist[0]
+        self.assertIsInstance(tag, test_tags.BaseAnyArgsTag)
+        self.assertIsInstance(tag.kwargs['foo'], FilterExpression)
+        self.assertIsInstance(tag.kwargs['bar'], FilterExpression)
+
     def test_base_arguments(self):
         """
         Test whether compiled template arguments come across properly
@@ -38,6 +49,10 @@ class TagParserTests(SimpleTestCase):
 
         text = t.render(Context({'arg1': 'AA1', 'arg2': 'AA2', 'key1': 'KEY1', 'key2': 'KEY2'}))
         self.assertEqual(text, '{args: AA1 AA2 kwargs: kw1=KEY1 kw2=KEY2]}')
+
+    def test_invalid_kwargs(self):
+        with self.assertRaises(TemplateSyntaxError):
+            Template('{% BaseArgsTag invalid_kwarg=1 %}')
 
     def test_base_repr(self):
         """

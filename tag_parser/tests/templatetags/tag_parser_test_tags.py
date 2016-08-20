@@ -9,6 +9,12 @@ class BaseNoArgsTag(BaseNode):
     pass
 
 
+
+@register.tag('BaseAnyArgsTag')
+class BaseAnyArgsTag(BaseNode):
+    allowed_kwargs = None  # disable check
+
+
 @register.tag('BaseArgsTag')
 class BaseArgsTag(BaseNode):
     min_args = 1
