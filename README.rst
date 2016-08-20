@@ -70,9 +70,9 @@ To parse a syntax like:
 
     {% my_tag "arg1" keyword1="bar" keyword2="foo" %}
 
-.. code-block:: python
+use:
 
-use::
+.. code-block:: python
 
     from django.template import Library
     from tag_parser.basetags import BaseNode
