@@ -22,38 +22,39 @@ Functions:
 * ``parse_token_kwargs``: split a token into the tag name, args and kwargs.
 * ``parse_as_var``: extract the "as varname" from a token.
 
-Decorators:
-
-* ``@template_tag``: register a class with a ``parse(parser, token)`` method as template tag.
-
 Base classes (in ``tag_parser.basetags``):
 
 * ``BaseNode``: A template ``Node`` object which features some basic parsing abilities.
 * ``BaseInclusionNode``: a ``Node`` that has ``inclusion_tag`` like behaviour, but allows to override the ``template_name`` dynamically.
+* ``BaseAssignmentNode``: a ``Node`` that returns the value in the context, using the ``as var`` syntax.
+* ``BaseAssignmentOrOutputNode``: a ``Node`` that either displays the value, or inserts it in the context.
 * ``BaseAssignmentOrInclusionNode``: a class that allows a ``{% get_items template="..." %}`` and ``{% get_items as var %}`` syntax.
 
 The base classes allows to implement ``@register.simple_tag``, ``@register.inclusion_tag`` and ``@register.assignment_tag`` like functionalities,
 while still leaving room to extend the parsing, rendering or syntax validation.
 For example, not all arguments need to be seen as template variables, filters or literal keywords.
 
+As of v3.0, the ``@template_tag`` decorator is no longer needed.
+Use ``@register.tag("name")`` directly on the class names.
+
 
 Installation
 ============
 
-First install the module, preferably in a virtual environment. It can be installed from PyPI::
+First install the module, preferably in a virtual environment. It can be installed from PyPI:
+
+.. code-block:: bash
 
     pip install django-tag-parser
-
-Or the current folder can be installed::
-
-    pip install .
 
 
 Examples
 ========
 
 At the top of your template tags library, always include the standard
-Django ``register`` variable and our ``template_tag`` decorator::
+Django ``register`` variable and our ``template_tag`` decorator:
+
+.. code-block:: python
 
     from django.template import Library
     from tag_parser import template_tag
@@ -63,20 +64,23 @@ Django ``register`` variable and our ``template_tag`` decorator::
 Arguments and keyword arguments
 -------------------------------
 
-To parse a syntax like::
+To parse a syntax like:
+
+.. code-block:: html+django
 
     {% my_tag "arg1" keyword1="bar" keyword2="foo" %}
+
+.. code-block:: python
 
 use::
 
     from django.template import Library
-    from tag_parser import template_tag
     from tag_parser.basetags import BaseNode
 
     register = Library()
 
 
-    @template_tag(register, 'my_tag')
+    @register.tag('my_tag')
     class MyTagNode(BaseNode):
         max_args = 1
         allowed_kwargs = ('keyword1', 'keyword2',)
@@ -87,21 +91,22 @@ use::
 Inclusion tags
 --------------
 
-To create an inclusion tag with overwritable template_name::
+To create an inclusion tag with overwritable template_name:
+
+.. code-block:: html+django
 
     {% my_include_tag "foo" template="custom/example.html" %}
 
-use::
+use:
 
+.. code-block:: python
 
     from django.template import Library
-    from tag_parser import template_tag
     from tag_parser.basetags import BaseInclusionNode
 
     register = Library()
 
-
-    @template_tag(register, "my_include_tag")
+    @register.tag("my_include_tag")
     class MyIncludeTag(BaseInclusionNode):
         template_name = "mytags/default.html"
         max_args = 1
@@ -120,21 +125,24 @@ Note the template nodes are cached afterwards, it's not possible to return rando
 Assignment tags
 ---------------
 
-To create assignment tags that can either render itself, or return context data::
+To create assignment tags that can either render itself, or return context data:
+
+.. code-block:: html+django
 
     {% get_tags template="custom/example.html" %}
     {% get_tags as popular_tags %}
 
-use::
+use:
+
+.. code-block:: python
 
     from django.template import Library
-    from tag_parser import template_tag
     from tag_parser.basetags import BaseAssignmentOrInclusionNode
 
     register = Library()
 
 
-    @template_tag(register, 'get_tags')
+    @register.tag('get_tags')
     class GetPopularTagsNode(BaseAssignmentOrInclusionNode):
         template_name = "myblog/templatetags/popular_tags.html"
         context_value_name = 'tags'
@@ -149,22 +157,25 @@ use::
 Block tags
 ----------
 
-To have a "begin .. end" block, define ``end_tag_name`` in the class::
+To have a "begin .. end" block, define ``end_tag_name`` in the class:
+
+.. code-block:: html+django
 
     {% my_tag keyword1=foo %}
         Tag contents, possibly other tags.
     {% end_my_tag %}
 
-use::
+use:
+
+.. code-block:: python
 
     from django.template import Library
-    from tag_parser import template_tag
     from tag_parser.basetags import BaseAssignmentOrInclusionNode
 
     register = Library()
 
 
-    @template_tag(register, 'my_tag')
+    @register.tag('my_tag')
     class MyTagNode(BaseNode):
         max_args = 1
         allowed_kwargs = ('keyword1', 'keyword2',)
@@ -179,19 +190,23 @@ Custom parsing
 --------------
 
 With the standard ``Node`` class from Django, it's easier to implement custom syntax.
-For example, to parse::
+For example, to parse:
+
+.. code-block:: html+django
 
     {% getfirstof val1 val2 as val3 %}
 
-use::
+use:
+
+.. code-block:: python
 
     from django.template import Library, Node, TemplateSyntaxError
-    from tag_parser import template_tag, parse_token_kwargs, parse_as_var
+    from tag_parser import parse_token_kwargs, parse_as_var
 
     register = Library()
 
 
-    @template_tag(register, 'getfirstof')
+    @register.tag('getfirstof')
     class GetFirstOfNode(Node):
         def __init__(self, options, as_var):
             self.options = options    # list of FilterExpression nodes.
