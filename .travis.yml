@@ -1,0 +1,40 @@
+language: python
+sudo: false
+cache: pip
+python:
+- '2.7'
+- '3.4'
+env:
+- PACKAGES="django>=1.6,<1.7"
+- PACKAGES="django>=1.7,<1.8"
+- PACKAGES="django>=1.8,<1.9"
+- PACKAGES="django>=1.9,<1.10"
+- PACKAGES="django>=1.10,<1.11"
+before_install:
+- pip install codecov
+install:
+- pip install -U pip wheel
+- pip install -q $PACKAGES -e .
+script:
+- coverage run --source=tag_parser runtests.py
+after_success:
+- codecov
+branches:
+  only:
+  - master
+notifications:
+  irc:
+    channels:
+    - irc.freenode.org#django-fluent
+    template:
+    - '%{repository}#%{build_number} (%{commit}) %{message}  --  %{build_url}'
+    skip_join: true
+  email:
+    recipients:
+    - travis@edoburu.nl
+    on_success: never
+    on_failure: always
+  slack:
+    secure: NhdY1hGdd8Z1shDm/g8M5sxbR2J8yVa0X/vmn3y05dZzW3FV4ktgIey6vZOA77Z3TtMbd3XXzWZaniVsp29HaBRxr0EVyk4zyR8i12cAnjIMox2/cWxjM92NkKufRMyW8wxPJsxNEMegOuanxZu72xHGxUYqySqQRCpTnWDk6RI=
+    on_success: never
+    on_failure: always
