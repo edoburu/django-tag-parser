@@ -24,6 +24,6 @@ class BaseArgsTag(BaseNode):
     def render_tag(self, context, *tag_args, **tag_kwargs):
         return '{{args: {0} kwargs: {1}]}}'.format(
             ' '.join(tag_args),
-            ' '.join('{0}={1}'.format(k,v) for k,v in tag_kwargs.iteritems())
+            ' '.join('{0}={1}'.format(k,v) for k,v in sorted(tag_kwargs.items()))
         )
 

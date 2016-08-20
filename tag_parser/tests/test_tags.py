@@ -41,7 +41,7 @@ class TagParserTests(SimpleTestCase):
         self.assertIsInstance(tag, test_tags.BaseArgsTag)
         self.assertEqual(tag.tag_name, 'BaseArgsTag')
         self.assertEqual(len(tag.args), 2)
-        self.assertEqual(tag.kwargs.keys(), ['kw1', 'kw2'])
+        self.assertEqual(sorted(tag.kwargs.keys()), ['kw1', 'kw2'])
         self.assertIsInstance(tag.args[0], FilterExpression)
         self.assertIsInstance(tag.args[1], FilterExpression)
         self.assertIsInstance(tag.kwargs['kw1'], FilterExpression)
