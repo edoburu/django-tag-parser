@@ -1,3 +1,12 @@
+.. image:: https://img.shields.io/travis/edoburu/django-tag-parser/master.svg?branch=master
+    :target: http://travis-ci.org/edoburu/django-tag-parser
+.. image:: https://img.shields.io/pypi/v/django-tag-parser.svg
+    :target: https://pypi.python.org/pypi/django-tag-parser/
+.. image:: https://img.shields.io/pypi/l/django-tag-parser.svg
+    :target: https://pypi.python.org/pypi/django-tag-parser/
+.. image:: https://img.shields.io/codecov/c/github/edoburu/django-tag-parser/master.svg
+    :target: https://codecov.io/github/edoburu/django-tag-parser?branch=master
+
 django-tag-parser
 =================
 
