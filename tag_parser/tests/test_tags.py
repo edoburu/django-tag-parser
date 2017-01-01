@@ -1,6 +1,8 @@
 from django.template import Context, TemplateSyntaxError
+from django.template import Library
 from django.template.base import Template, Token, TOKEN_TEXT, Parser, FilterExpression
 from django.test import SimpleTestCase
+from tag_parser import template_tag
 from tag_parser.basetags import BaseNode
 from tag_parser.tests.templatetags import tag_parser_test_tags as test_tags
 
@@ -89,6 +91,20 @@ class TagParserTests(SimpleTestCase):
         """
         tag = Template('{% BaseInclusionTag FOOBAR|default:"123" %}')
         self.assertEqual(tag.render(Context({'FOOBAR': '456'})).strip(), '456')
+
+    def test_register_decorator(self):
+        """
+        Test the old ``@template_tag`` decorator (can now just use ``@register.tag()``).
+        """
+        register = Library()
+        @template_tag(register, 'RegTest')
+        class RegTest(BaseNode):
+            pass
+
+        self.assertIn('RegTest', register.tags)
+        self.assertEqual(register.tags['RegTest'], RegTest.parse)
+
+
 
 
 def _get_parser():
