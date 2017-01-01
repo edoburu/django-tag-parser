@@ -13,24 +13,6 @@ __all__ = (
 )
 
 
-class _CompileWrapper(object):
-
-    def __init__(self, real_class, parser, token):
-        self._real_class = real_class
-        self._node = self._real_class.parse(parser, token)
-
-    def render(self, context):
-        return self._node.render(context)
-
-    def __getattr__(self, item):
-        if item.startswith('_'):
-            raise AttributeError(item)
-        return getattr(self._node, item)
-
-    def __repr__(self):
-        return '<{0} {1}>'.format(self.__class__.__name__, repr(self._node))
-
-
 class BaseNode(Node):
     """
     Base class for template tag nodes.
