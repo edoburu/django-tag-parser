@@ -27,12 +27,7 @@ if not settings.configured:
                             'django.template.loaders.app_directories.Loader',
                         ),
                         'context_processors': (
-                            'django.template.context_processors.debug',
-                            'django.template.context_processors.i18n',
-                            'django.template.context_processors.media',
                             'django.template.context_processors.request',
-                            'django.template.context_processors.static',
-                            'django.contrib.auth.context_processors.auth',
                         ),
                     },
                 },
@@ -51,7 +46,7 @@ if not settings.configured:
                 'django.template.loaders.app_directories.Loader',
                 'django.template.loaders.filesystem.Loader',
             ),
-            TEMPLATE_CONTEXT_PROCESSORS = list(default_settings.TEMPLATE_CONTEXT_PROCESSORS) + [
+            TEMPLATE_CONTEXT_PROCESSORS = [
                 'django.core.context_processors.request',
             ],
         )
@@ -64,11 +59,6 @@ if not settings.configured:
             }
         },
         INSTALLED_APPS = (
-            'django.contrib.auth',
-            'django.contrib.contenttypes',
-            'django.contrib.sites',
-            'django.contrib.admin',
-            'django.contrib.sessions',
             'tag_parser',
             'tag_parser.tests',
         ),
