@@ -72,6 +72,7 @@ if not settings.configured:
             'tag_parser',
             'tag_parser.tests',
         ),
+        MIDDLEWARE_CLASSES = default_settings.MIDDLEWARE_CLASSES,  # silencens Django 1.7 checks
         TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1, 6) else 'django.test.runner.DiscoverRunner',
         **template_settings
     )
