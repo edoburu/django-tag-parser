@@ -12,7 +12,9 @@ __all__ = (
     'BaseNode', 'BaseInclusionNode'
 )
 
+
 class _CompileWrapper(object):
+
     def __init__(self, real_class, parser, token):
         self._real_class = real_class
         self._node = self._real_class.parse(parser, token)
@@ -107,7 +109,7 @@ class BaseNode(Node):
                     return getattr(self.__real_node, item)
 
             return object.__new__(CompileWrapper)
-            #return _CompileWrapper(cls, *args)
+            # return _CompileWrapper(cls, *args)
         else:
             # Standard object construction (typically done from parse())
             # The created object instance will be receiving the __init__(*args, **kwargs) call on return.
@@ -127,7 +129,6 @@ class BaseNode(Node):
         self.args = args
         self.kwargs = kwargs
 
-
     def __repr__(self):
         show_as_is = lambda text: text
         show_as_token = lambda expr: expr.token
@@ -138,9 +139,8 @@ class BaseNode(Node):
             self.__class__.__name__,
             self.tag_name,
             u''.join(u" {0}".format(format_arg(a)) for a in self.args),
-            u''.join(u" {0}={1}".format(k, format_kwarg(v)) for k,v in six.iteritems(self.kwargs)),
+            u''.join(u" {0}={1}".format(k, format_kwarg(v)) for k, v in six.iteritems(self.kwargs)),
         )
-
 
     @classmethod
     def parse(cls, parser, token):
@@ -163,7 +163,6 @@ class BaseNode(Node):
 
         return cls(tag_name, *args, **kwargs)
 
-
     def render(self, context):
         """
         The default Django render() method for the tag.
@@ -176,13 +175,11 @@ class BaseNode(Node):
 
         return self.render_tag(context, *tag_args, **tag_kwargs)
 
-
     def render_tag(self, context, *tag_args, **tag_kwargs):
         """
         Render the tag, with all arguments resolved to their actual values.
         """
         raise NotImplementedError("{0}.render_tag() is not implemented!".format(self.__class__.__name__))
-
 
     @classmethod
     def validate_args(cls, tag_name, *args, **kwargs):
@@ -206,7 +203,6 @@ class BaseNode(Node):
             else:
                 raise TemplateSyntaxError("'{0}' tag only allows {1} arguments.".format(tag_name, cls.max_args))
 
-
     def get_request(self, context):
         """
         Fetch the request from the context.
@@ -219,12 +215,11 @@ class BaseNode(Node):
         if 'request' not in context:
             # This error message is issued to help newcomers find solutions faster!
             raise ImproperlyConfigured(
-                "The '{0}' tag requires a 'request' variable in the template context.\n" \
+                "The '{0}' tag requires a 'request' variable in the template context.\n"
                 "Make sure 'RequestContext' is used and 'TEMPLATE_CONTEXT_PROCESSORS' includes 'django.core.context_processors.request'.".format(self.tag_name)
             )
 
         return context['request']
-
 
 
 class BaseInclusionNode(BaseNode):
@@ -244,12 +239,11 @@ class BaseInclusionNode(BaseNode):
     template_name = None
     allowed_kwargs = ('template',)
 
-
     def render_tag(self, context, *tag_args, **tag_kwargs):
         data = self.get_context_data(context, *tag_args, **tag_kwargs)
         new_context = self.get_context(context, data)
 
-        if django.VERSION >= (1,8):
+        if django.VERSION >= (1, 8):
             t = context.render_context.get(self)
             if t is None:
                 file_name = self.get_template_name(*tag_args, **tag_kwargs)
@@ -281,20 +275,17 @@ class BaseInclusionNode(BaseNode):
             # Render the node
             return self.nodelist.render(new_context)
 
-
     def get_template_name(self, *tag_args, **tag_kwargs):
         """
         Get the template name, by default using the :attr:`template_name` attribute.
         """
         return tag_kwargs.get('template', self.template_name)
 
-
     def get_context_data(self, parent_context, *tag_args, **tag_kwargs):
         """
         Return the context data for the included template.
         """
         raise NotImplementedError("{0}.get_context_data() is not implemented.".format(self.__class__.__name__))
-
 
     def get_context(self, parent_context, data):
         """
@@ -307,7 +298,7 @@ class BaseInclusionNode(BaseNode):
         :return: Context data.
         :rtype: :class:`~django.template.Context`
         """
-        if django.VERSION >= (1,8):
+        if django.VERSION >= (1, 8):
             new_context = parent_context.new(data)
         else:
             settings = {
@@ -330,10 +321,10 @@ class BaseAssignmentNode(BaseNode):
     """
     Base assignment node for an ``as var`` syntax.
     """
+
     def __init__(self, tag_name, as_var, *args, **kwargs):
         super(BaseAssignmentNode, self).__init__(tag_name, *args, **kwargs)
         self.as_var = as_var
-
 
     @classmethod
     def parse(cls, parser, token):
@@ -347,7 +338,6 @@ class BaseAssignmentNode(BaseNode):
         cls.validate_args(tag_name, *args)
         return cls(tag_name, as_var, *args, **kwargs)
 
-
     def render_tag(self, context, *tag_args, **tag_kwargs):
         """
         Rendering of the tag. It either assigns the value as variable, or renders it.
@@ -357,7 +347,6 @@ class BaseAssignmentNode(BaseNode):
             context[self.as_var] = self.get_value(context, *tag_args, **tag_kwargs)
 
         return u''
-
 
     def get_value(self, context, *tag_args, **tag_kwargs):
         """
@@ -389,7 +378,6 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
     """
     context_value_name = 'value'
 
-
     @classmethod
     def parse(cls, parser, token):
         """
@@ -401,7 +389,6 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
         # Pass through standard chain
         cls.validate_args(tag_name, *args)
         return cls(tag_name, as_var, *args, **kwargs)
-
 
     def render_tag(self, context, *tag_args, **tag_kwargs):
         """
@@ -415,7 +402,6 @@ class BaseAssignmentOrInclusionNode(BaseInclusionNode, BaseAssignmentNode):
         else:
             # Render the output using the BaseInclusionNode features
             return BaseInclusionNode.render_tag(self, context, *tag_args, **tag_kwargs)
-
 
     def get_context_data(self, parent_context, *tag_args, **tag_kwargs):
         """

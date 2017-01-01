@@ -9,7 +9,6 @@ class BaseNoArgsTag(BaseNode):
     pass
 
 
-
 @register.tag('BaseAnyArgsTag')
 class BaseAnyArgsTag(BaseNode):
     allowed_kwargs = None  # disable check
@@ -24,7 +23,7 @@ class BaseArgsTag(BaseNode):
     def render_tag(self, context, *tag_args, **tag_kwargs):
         return '{{args: {0} kwargs: {1}]}}'.format(
             ' '.join(tag_args),
-            ' '.join('{0}={1}'.format(k,v) for k,v in sorted(tag_kwargs.items()))
+            ' '.join('{0}={1}'.format(k, v) for k, v in sorted(tag_kwargs.items()))
         )
 
 

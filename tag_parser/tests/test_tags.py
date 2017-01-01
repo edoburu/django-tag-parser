@@ -6,12 +6,13 @@ from tag_parser.tests.templatetags import tag_parser_test_tags as test_tags
 
 
 try:
-    from django.template.base import add_to_builtins # Django 1.8-
+    from django.template.base import add_to_builtins  # Django 1.8-
 except ImportError:
     add_to_builtins = None
 
 
 class TagParserTests(SimpleTestCase):
+
     @classmethod
     def setUpClass(cls):
         super(TagParserTests, cls).setUpClass()
