@@ -1,4 +1,10 @@
 
+Version 3.1 (2017-01-01)
+------------------------
+
+* Fix ``BaseInclusionNode.get_template_name()`` to support lists in Django 1.7 and below.
+
+
 Version 3.0 (2016-08-20)
 ------------------------
 
