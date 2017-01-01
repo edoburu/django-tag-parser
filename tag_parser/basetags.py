@@ -2,7 +2,7 @@ import django
 from django.core.exceptions import ImproperlyConfigured
 from django.template.base import Template, Parser
 from django.template import Node, Context, TemplateSyntaxError
-from django.template.loader import get_template
+from django.template.loader import get_template, select_template
 from django.utils import six
 from django.utils.itercompat import is_iterable
 from tag_parser.parser import parse_token_kwargs, parse_as_var
@@ -270,7 +270,12 @@ class BaseInclusionNode(BaseNode):
             # Note that self.nodelist has a special meaning in the Node base class.
             if not getattr(self, 'nodelist', None):
                 file_name = self.get_template_name(*tag_args, **tag_kwargs)
-                tpl = get_template(file_name)
+
+                if not isinstance(file_name, six.string_types) and is_iterable(file_name):
+                    tpl = select_template(file_name)
+                else:
+                    tpl = get_template(file_name)
+
                 self.nodelist = tpl.nodelist
 
             # Render the node

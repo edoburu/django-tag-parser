@@ -82,6 +82,13 @@ class TagParserTests(SimpleTestCase):
         node = ArgsTest2.parse(parser=_get_parser(), token=Token(TOKEN_TEXT, 'ArgsTest  1  2  kw=foo|default:"1" '))
         self.assertEqual(repr(node), '<ArgsTest2: {% ArgsTest 1 2 kw=foo|default:"1" %}>')
 
+    def test_inclusion_tag_list(self):
+        """
+        Test whether the inclusion tag can handle lists as template choices.
+        """
+        tag = Template('{% BaseInclusionTag FOOBAR|default:"123" %}')
+        self.assertEqual(tag.render(Context({'FOOBAR': '456'})).strip(), '456')
+
 
 def _get_parser():
     import django

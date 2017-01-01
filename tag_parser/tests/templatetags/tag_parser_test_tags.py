@@ -1,5 +1,5 @@
 from django.template import Library
-from tag_parser.basetags import BaseNode
+from tag_parser.basetags import BaseNode, BaseInclusionNode
 
 register = Library()
 
@@ -27,3 +27,18 @@ class BaseArgsTag(BaseNode):
             ' '.join('{0}={1}'.format(k,v) for k,v in sorted(tag_kwargs.items()))
         )
 
+
+@register.tag('BaseInclusionTag')
+class InclusionTag(BaseInclusionNode):
+    min_args = 1
+    max_args = 1
+
+    def get_template_name(self, *tag_args, **tag_kwargs):
+        return [
+            'tag_parser/tests/inclusion1.html'
+        ]
+
+    def get_context_data(self, parent_context, *tag_args, **tag_kwargs):
+        return {
+            'tag_args0': tag_args[0],
+        }

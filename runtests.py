@@ -21,7 +21,6 @@ if not settings.configured:
             TEMPLATES = [
                 {
                     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                    'DIRS': (),
                     'OPTIONS': {
                         'loaders': (
                             'django.template.loaders.filesystem.Loader',
@@ -71,6 +70,7 @@ if not settings.configured:
             'django.contrib.admin',
             'django.contrib.sessions',
             'tag_parser',
+            'tag_parser.tests',
         ),
         TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1, 6) else 'django.test.runner.DiscoverRunner',
         **template_settings
