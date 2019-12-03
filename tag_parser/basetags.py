@@ -3,7 +3,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template.base import Template, Parser
 from django.template import Node, Context, TemplateSyntaxError
 from django.template.loader import get_template, select_template
-from django.utils import six
 from django.utils.itercompat import is_iterable
 from tag_parser.parser import parse_token_kwargs, parse_as_var
 
@@ -121,7 +120,7 @@ class BaseNode(Node):
             self.__class__.__name__,
             self.tag_name,
             u''.join(u" {0}".format(format_arg(a)) for a in self.args),
-            u''.join(u" {0}={1}".format(k, format_kwarg(v)) for k, v in six.iteritems(self.kwargs)),
+            u''.join(u" {0}={1}".format(k, format_kwarg(v)) for k, v in self.kwargs.items()),
         )
 
     @classmethod
@@ -153,7 +152,7 @@ class BaseNode(Node):
         """
         # Resolve token kwargs
         tag_args = [expr.resolve(context) for expr in self.args] if self.compile_args else self.args
-        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in six.iteritems(self.kwargs)]) if self.compile_kwargs else self.kwargs
+        tag_kwargs = dict([(name, expr.resolve(context)) for name, expr in self.kwargs.items()]) if self.compile_kwargs else self.kwargs
 
         return self.render_tag(context, *tag_args, **tag_kwargs)
 
@@ -234,7 +233,7 @@ class BaseInclusionNode(BaseNode):
                     t = file_name
                 elif isinstance(getattr(file_name, 'template', None), Template):
                     t = file_name.template
-                elif not isinstance(file_name, six.string_types) and is_iterable(file_name):
+                elif not isinstance(file_name, str) and is_iterable(file_name):
                     t = context.template.engine.select_template(file_name)
                 else:
                     t = context.template.engine.get_template(file_name)
@@ -247,7 +246,7 @@ class BaseInclusionNode(BaseNode):
             if not getattr(self, 'nodelist', None):
                 file_name = self.get_template_name(*tag_args, **tag_kwargs)
 
-                if not isinstance(file_name, six.string_types) and is_iterable(file_name):
+                if not isinstance(file_name, str) and is_iterable(file_name):
                     tpl = select_template(file_name)
                 else:
                     tpl = get_template(file_name)
