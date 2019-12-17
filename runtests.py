@@ -14,43 +14,6 @@ sys.stderr.write('Using Django version {0} from {1}\n'.format(
 )
 
 if not settings.configured:
-    module_root = path.dirname(path.realpath(__file__))
-
-    if django.VERSION >= (1, 8):
-        template_settings = dict(
-            TEMPLATES = [
-                {
-                    'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                    'OPTIONS': {
-                        'loaders': (
-                            'django.template.loaders.filesystem.Loader',
-                            'django.template.loaders.app_directories.Loader',
-                        ),
-                        'context_processors': (
-                            'django.template.context_processors.request',
-                        ),
-                    },
-                },
-            ]
-        )
-
-        if django.VERSION >= (1, 9):
-            template_settings['TEMPLATES'][0]['OPTIONS'].update({
-                'builtins': [
-                    'tag_parser.tests.templatetags.tag_parser_test_tags',
-                ],
-            })
-    else:
-        template_settings = dict(
-            TEMPLATE_LOADERS = (
-                'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.filesystem.Loader',
-            ),
-            TEMPLATE_CONTEXT_PROCESSORS = [
-                'django.core.context_processors.request',
-            ],
-        )
-
     settings.configure(
         DATABASES = {
             'default': {
@@ -62,9 +25,25 @@ if not settings.configured:
             'tag_parser',
             'tag_parser.tests',
         ),
-        MIDDLEWARE_CLASSES = default_settings.MIDDLEWARE_CLASSES,  # silencens Django 1.7 checks
-        TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1, 6) else 'django.test.runner.DiscoverRunner',
-        **template_settings
+        MIDDLEWARE=[],
+        TEMPLATES = [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'OPTIONS': {
+                    'loaders': [
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader',
+                    ],
+                    'context_processors': [
+                        'django.template.context_processors.request',
+                    ],
+                    'builtins': [
+                        'tag_parser.tests.templatetags.tag_parser_test_tags',
+                    ],
+                },
+            }
+        ],
+        TEST_RUNNER = 'django.test.runner.DiscoverRunner',
     )
 
 DEFAULT_TEST_APPS = [

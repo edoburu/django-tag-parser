@@ -1,16 +1,21 @@
 from django.template import Context, TemplateSyntaxError
 from django.template import Library
-from django.template.base import Template, Token, TOKEN_TEXT, Parser, FilterExpression
+from django.template.base import Template, Token, Parser, FilterExpression
 from django.test import SimpleTestCase
 from tag_parser import template_tag
 from tag_parser.basetags import BaseNode
 from tag_parser.tests.templatetags import tag_parser_test_tags as test_tags
 
-
 try:
     from django.template.base import add_to_builtins  # Django 1.8-
 except ImportError:
     add_to_builtins = None
+
+try:
+    from django.template.base import TokenType  # Django 2.1+
+    TOKEN_TEXT = TokenType.TEXT
+except ImportError:
+    from django.template.base import TOKEN_TEXT  # Django 2.0-
 
 
 class TagParserTests(SimpleTestCase):
