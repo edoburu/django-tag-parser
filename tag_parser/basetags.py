@@ -1,3 +1,5 @@
+import sys
+
 import django
 from django.core.exceptions import ImproperlyConfigured
 from django.template.base import Template, Parser
@@ -5,6 +7,8 @@ from django.template import Node, Context, TemplateSyntaxError
 from django.template.loader import get_template, select_template
 from django.utils.itercompat import is_iterable
 from tag_parser.parser import parse_token_kwargs, parse_as_var
+
+string_types = (str,) if sys.version_info[0] >= 3 else (str, unicode)
 
 
 __all__ = (
@@ -233,7 +237,7 @@ class BaseInclusionNode(BaseNode):
                     t = file_name
                 elif isinstance(getattr(file_name, 'template', None), Template):
                     t = file_name.template
-                elif not isinstance(file_name, str) and is_iterable(file_name):
+                elif not isinstance(file_name, string_types) and is_iterable(file_name):
                     t = context.template.engine.select_template(file_name)
                 else:
                     t = context.template.engine.get_template(file_name)
@@ -246,7 +250,7 @@ class BaseInclusionNode(BaseNode):
             if not getattr(self, 'nodelist', None):
                 file_name = self.get_template_name(*tag_args, **tag_kwargs)
 
-                if not isinstance(file_name, str) and is_iterable(file_name):
+                if not isinstance(file_name, string_types) and is_iterable(file_name):
                     tpl = select_template(file_name)
                 else:
                     tpl = get_template(file_name)
