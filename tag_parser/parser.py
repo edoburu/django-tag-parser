@@ -1,13 +1,12 @@
-from django.template import TemplateSyntaxError
-from django.template.base import Token
 import re
 
-__all__ = (
-    'parse_as_var', 'parse_token_kwargs'
-)
+from django.template import TemplateSyntaxError
+from django.template.base import Token
+
+__all__ = ("parse_as_var", "parse_token_kwargs")
 
 
-kwarg_re = re.compile('^(?P<name>\w+)=')
+kwarg_re = re.compile("^(?P<name>\w+)=")
 
 
 def parse_as_var(parser, token):
@@ -25,7 +24,7 @@ def parse_as_var(parser, token):
         bits = token
 
     as_var = None
-    if len(bits) > 2 and bits[-2] == 'as':
+    if len(bits) > 2 and bits[-2] == "as":
         bits = bits[:]
         as_var = bits.pop()
         bits.pop()  # as keyword
@@ -33,7 +32,9 @@ def parse_as_var(parser, token):
     return bits, as_var
 
 
-def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, compile_kwargs=True):
+def parse_token_kwargs(
+    parser, token, allowed_kwargs=None, compile_args=True, compile_kwargs=True
+):
     """
     Allow the template tag arguments to be like a normal Python function, with *args and **kwargs.
 
@@ -65,12 +66,16 @@ def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, co
         if kwarg_match:
             # Keyword argument
             expect_kwarg = True
-            (name, expr) = bit.split('=', 2)
+            (name, expr) = bit.split("=", 2)
             kwargs[name] = parser.compile_filter(expr) if compile_kwargs else expr
         else:
             # Still at positioned arguments.
             if expect_kwarg:
-                raise TemplateSyntaxError("{0} tag may not have a non-keyword argument ({1}) after a keyword argument ({2}).".format(bits[0], bit, prev_bit))
+                raise TemplateSyntaxError(
+                    "{0} tag may not have a non-keyword argument ({1}) after a keyword argument ({2}).".format(
+                        bits[0], bit, prev_bit
+                    )
+                )
             args.append(parser.compile_filter(bit) if compile_args else bit)
 
         prev_bit = bit
@@ -78,10 +83,15 @@ def parse_token_kwargs(parser, token, allowed_kwargs=None, compile_args=True, co
     # Validate the allowed arguments, to make things easier for template developers
     if allowed_kwargs is not None and kwargs:
         if not allowed_kwargs:
-            raise TemplateSyntaxError("The option %s=... cannot be used in '%s'.\nNo keyword arguments are allowed.")
+            raise TemplateSyntaxError(
+                "The option %s=... cannot be used in '%s'.\nNo keyword arguments are allowed."
+            )
 
         for name in kwargs:
             if name not in allowed_kwargs:
-                raise TemplateSyntaxError("The option %s=... cannot be used in '%s'.\nPossible options are: %s." % (name, bits[0], ", ".join(allowed_kwargs)))
+                raise TemplateSyntaxError(
+                    "The option %s=... cannot be used in '%s'.\nPossible options are: %s."
+                    % (name, bits[0], ", ".join(allowed_kwargs))
+                )
 
     return tag_name, args, kwargs

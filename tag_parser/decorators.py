@@ -20,8 +20,9 @@ def template_tag(library, name):
         class MyTag(BaseNode):
             pass
     """
+
     def _inner(cls):
-        if hasattr(cls, 'parse'):
+        if hasattr(cls, "parse"):
             compile_function = cls.parse
         else:
             # Hope that it's either a function, or cls with __init__(self, parser, token) method.
