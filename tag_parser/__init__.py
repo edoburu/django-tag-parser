@@ -8,4 +8,4 @@ __all__ = (
 )
 
 # following PEP 440
-__version__ = "3.1"
+__version__ = "3.2"
